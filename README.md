@@ -88,6 +88,14 @@ spring.mvc.view.suffix=.jsp
 - Mặc định thư viện Spring sẽ đọc file **View.jsp** ở đường dẫn "/src/main/resources/META-INF/resources/WEB-INF/jsp/[Tên file].jsp"
 - Nên để có thể sử dụng View trong Controller phải tạo các thư mục và file ở đường dẫn trên
 
+### Flow Web
+1. Client request
+2. Spring kiểm tra controller handle URL
+3. Spring thêm dữ liệu vào model
+4. Spring thực thi lệnh trong handle đó
+5. Spring kiểm tra nếu trả về là View JSP thì sử dụng View Resolver để lấy đường dẫn đến JSP
+6. Spring trả về (response) nội dung và trạng thái (status) cho client
+
 ### Controller
 - File Controller đặt tên theo cú pháp PascalCase ví dụ: **LoginController.java**
 - File Controller là class
@@ -129,6 +137,7 @@ public String sayHelloJSP() {
   return "sayHello";
 }
 ```
+
 - Annotation @RequestParam để nhận param và truyền tiếp vào Views
 ```Java
 // Trong @RequestParam:
@@ -139,8 +148,31 @@ public String sayHelloJSP() {
 // Để truyền giá trị từ Controller vào View thì phải truyền vào Model, trường hợp này sẽ là ModelMap
 @RequestMapping("login")
 public String goLogin(@RequestParam(value = "name", required = false, defaultValue = "Guest") String name, ModelMap model) {
-    model.put("name", name);
-    return "login";
+  model.put("name", name);
+  return "login";
+}
+```
+
+- Để chỉ định hàm xử lý cho loại phương thức (Method) khác nhau của URL đó thì thêm thuộc tính **method** vào @RequestMapping
+```Java
+@RequestMapping(value="login", method = RequestMethod.POST)
+public String goWelcome(@RequestParam(value = "username") String username, @RequestParam(value = "password") String password, ModelMap model) {
+  if(authenticationService.authenticate(username, password) ) {
+    model.put("username", username);
+    return "welcome";			
+  }
+  model.put("errorMessage", "Invalid credentials, please try again!");
+  return "login";
+}
+```
+
+- Để sử dụng giá trị của Model cho tất cả Controller và Views khác sử dụng thì sử dụng **Session** để lưu
+- Đặt annotation vào đầu Class
+```Java
+@Controller
+@SessionAttributes("username") // Lưu username của Model vào Session
+public class LoginController {
+  ...
 }
 ```
 ### Views
@@ -158,4 +190,26 @@ ${tên_đã_put_vào_model_ở_controller}
 	<div>Welcome to login page ${name}!</div>
 </body>
 </html>
+```
+- Để render dữ liệu từng dòng và chỉ định cụ thể dữ liệu cần hiển thị thì sử dụng thư viện **jstl**
+- Nhúng dòng lệnh này vào đầu file JSP
+
+```HTML
+<!-- Chú ý thuộc tính prefix -->
+<%@ taglib prefix="c" uri="jakarta.tags.core"%>
+```
+
+- Cách sử dụng
+```HTML
+<!-- prefix khai báo ở trên được sử dụng ở thẻ đóng/mở này -->
+<!-- todos là model, var="todo" là biến lưu trữ -->
+<c:forEach items="${todos}" var="todo">
+  <tr>
+    <td>${todo.id}</td>
+    <td>${todo.name}</td>
+    <td>${todo.description}</td>
+    <td>${todo.targetDate}</td>
+    <td>${todo.done}</td>
+  </tr>
+</c:forEach>
 ```

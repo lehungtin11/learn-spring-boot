@@ -3,6 +3,6 @@
 <title>Hello</title>
 </head>
 <body>
-	<div>Hello</div>
+	<div>Hello ${username}</div>
 </body>
 </html>
