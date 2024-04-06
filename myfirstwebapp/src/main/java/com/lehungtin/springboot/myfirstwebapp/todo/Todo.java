@@ -1,9 +1,11 @@
 package com.lehungtin.springboot.myfirstwebapp.todo;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
+
+import jakarta.validation.constraints.Size;
 
 public class Todo {
-	public Todo(int id, String name, String description, LocalDateTime targetDate, boolean done) {
+	public Todo(int id, String name, String description, LocalDate targetDate, boolean done) {
 		super();
 		this.id = id;
 		this.name = name;
@@ -14,8 +16,10 @@ public class Todo {
 
 	private int id;
 	private String name;
+	
+	@Size(min = 10, message = "Enter atleast 10 characters")
 	private String description;
-	private LocalDateTime targetDate;
+	private LocalDate targetDate;
 	private boolean done;
 
 	public int getId() {
@@ -42,11 +46,11 @@ public class Todo {
 		this.description = description;
 	}
 
-	public LocalDateTime getTargetDate() {
+	public LocalDate getTargetDate() {
 		return targetDate;
 	}
 
-	public void setTargetDate(LocalDateTime targetDate) {
+	public void setTargetDate(LocalDate targetDate) {
 		this.targetDate = targetDate;
 	}
 

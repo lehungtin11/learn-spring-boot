@@ -175,6 +175,31 @@ public class LoginController {
   ...
 }
 ```
+
+#### Two-way binding (Controller)
+- Để chuyển sang 2-way binding hay Command Bean (Form Backing Object) cho **Controller** thì làm theo các thao tác sau
+- Bỏ tham số **@RequestParam** thay vào là truyền thêm Scheme vào tham số thứ 2
+- Tiện lợi của cách này là có thể chuyển sang cơ chế 2-way bindding hay Command Bean (Form Backing Object) để validate được ở server-side, tránh hacker
+```Java
+@RequestMapping(value="add-todo", method=RequestMethod.GET)
+public String showNewTodoPage(ModelMap model) {
+  String username = (String)model.get("username");
+  Todo todo = new Todo(0, username, "", LocalDate.now().plusYears(1), false);
+  model.put("todo", todo);
+  return "addTodo";
+}
+
+@RequestMapping(value="add-todo", method=RequestMethod.POST)
+public String addNewTodo(ModelMap model, @Valid Todo todo, BindingResult result) { // <== Thêm annotiaton @Valid và tham số BindingResult
+  if(result.hasErrors()) {
+    return "addTodo";
+  }
+  
+  String username = (String)model.get("username");
+  todoService.addTodo(username, todo.getDescription(), LocalDate.now().plusYears(1), false);
+  return "redirect:list-todos";
+}
+```
 ### Views
 - Để nhận giá trị truyền vào từ **Controller** thì sử dụng cú pháp
 ```
@@ -213,3 +238,29 @@ ${tên_đã_put_vào_model_ở_controller}
   </tr>
 </c:forEach>
 ```
+
+#### Two-way binding (Views)
+- Để thêm two-way binding hay Command Bean (Form Backing Object) hoặc validate ở server-side thì thêm thư viện **form tag**
+- Thêm **taglib** vào đầu file HTML
+- Dựa theo prefix mà thay vào các thẻ
+- Thuộc tính **"modelAttribute"** để chỉ biến chứa model (Lúc này là scheme) được khai báo ở **Controller**
+- Thuộc tính **"path"** ở các thẻ input để chỉ định key của model (Tức là column của scheme)
+- **"modelAttribute"** và **"path"** phải đúng chính tả
+- Tiện lợi của cách này là có thể chuyển sang cơ chế 2-way bindding hay Command Bean (Form Backing Object) để validate được ở server-side, tránh hacker
+```HTML
+<%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
+<form:form method="post" modelAttribute="todo">
+  <label for="description">Description:</label>
+  <form:input type="text" name="description" path="description"/>
+  <form:errors path="description"/>
+  <form:input type="hidden" name="id" path="id"/>
+  <form:input type="hidden" name="targetDate" path="targetDate"/>
+  <form:input type="hidden" name="done" path="done"/>
+  <input type="submit" />
+</form:form>
+```
+
+## Two-way binding
+- Để ứng dụng trở thành 2-way binding thì sử dụng mô hình Command Bean (Form Backing Object)
+- 2-way binding là khi server side đổ dữ liệu ra giao diện (first binding)
+  và trên giao diện cũng có thể thay đổi giá trị đó và gửi ngược về server (second binding).
