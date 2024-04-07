@@ -264,3 +264,14 @@ ${tên_đã_put_vào_model_ở_controller}
 - Để ứng dụng trở thành 2-way binding thì sử dụng mô hình Command Bean (Form Backing Object)
 - 2-way binding là khi server side đổ dữ liệu ra giao diện (first binding)
   và trên giao diện cũng có thể thay đổi giá trị đó và gửi ngược về server (second binding).
+
+## Fragment Java (.jspf)
+- Fragment trong Java là tách các thành phần trong file HTML sang các file riêng có đuôi mở rộng là (.jspf)
+  thường là tạo các file trong thư mục **"jsp/common"**
+
+- Sau khi tách các thành phần ra file riêng (header, footer, navigation...) thì thêm vào các file **.jsp** dòng code tương ứng sau
+  và đặt ở vị trị tương ứng như cấu trúc HTML.
+
+```Java
+<%@include file="common/[Tên_File].jspf"%>
+```
