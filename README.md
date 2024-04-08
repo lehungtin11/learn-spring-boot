@@ -275,3 +275,54 @@ ${tên_đã_put_vào_model_ở_controller}
 ```Java
 <%@include file="common/[Tên_File].jspf"%>
 ```
+
+## JPA & Hibernate
+- Để cấu hình giao diện console cho H2, mở file **application.properties** thêm dòng bên dưới
+- Sau khi thêm vào để vào giao diện console thêm đường dẫn sau vào **"/h2-console"**
+```JAVA
+spring.h2.console.enabled=true
+```
+
+- Database h2 sẽ tự tạo Table và Schema sẽ tương ứng tại file **"schema.sql"** theo đường dẫn sau
+```
+.../src/main/resources/schema.sql
+```
+
+- Để cấu hình data source cho jdbc h2 thì mở file **"application.properties"** và thêm dòng sau
+```JAVA
+spring.datasource.url=jdbc:h2:mem:[Tên_Tùy_Chỉnh]
+```
+
+- File Java tương tác trực tiếp với JDBC thì được quy định là **@Repository**
+- Thực thi câu truy vấn (query) bằng Spring thì sử dụng thư viện **JdbcTemplate**
+```Java
+@Repository
+public class CourseJdbcResponsitory {
+	@Autowired
+	private JdbcTemplate springJdbcTemplate;
+	
+	private static String INSERT_QUERY =
+			"""
+			insert into course (id, name, author) values (1, 'ABC', 'DEF');
+			""";
+	
+	public void Insert() {
+		springJdbcTemplate.update(INSERT_QUERY);
+	}
+}
+```
+
+- Để câu truy vấn hoặc tác vụ được thực thi mỗi khi chạy ứng dụng lần đầu thì sử dụng thư viện **CommandLineRunner**
+```Java
+@Component
+public class CourseJdbcCommandLineRunner implements CommandLineRunner {
+	
+	@Autowired
+	CourseJdbcResponsitory courseJdbcResponsitory;
+
+	@Override
+	public void run(String... args) throws Exception {
+		courseJdbcResponsitory.Insert();
+	}
+}
+```
