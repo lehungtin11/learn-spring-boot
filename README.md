@@ -326,3 +326,147 @@ public class CourseJdbcCommandLineRunner implements CommandLineRunner {
 	}
 }
 ```
+
+### JDBC, Spring JDBC, JPA, Spring Data JPA
+- Có 4 kiểu truy vấn dữ liệu chính thường được sử dụng
+1. JDBC
++ Nhiều câu truy vấn SQL
++ Nhiều code Java
+
+2. Spring JDBC
++ Nhiều truy vấn SQL
++ Ít code Java
+```JAVA
+@Repository
+public class CourseJdbcRepository {
+	@Autowired
+	private JdbcTemplate springJdbcTemplate;
+	
+	private static String INSERT_QUERY =
+			"""
+			insert into course (id, name, author) values (?, ?, ?);
+			""";
+	
+	private static String DELETE_QUERY =
+			"""
+			delete from course where id = ?;
+			""";
+	
+	private static String SELECT_QUERY =
+			"""
+			select * from course where id = ?;
+			""";
+	
+	public void insert(Course course) {
+		springJdbcTemplate.update(INSERT_QUERY, course.getId(), course.getName(), course.getAuthor());
+	}
+	
+	public void deleteById(long id) {
+		springJdbcTemplate.update(DELETE_QUERY, id);		
+	}
+	
+	public Course findById(long id) {
+		return springJdbcTemplate.queryForObject(SELECT_QUERY, new BeanPropertyRowMapper<>(Course.class), id);
+	}
+}
+```
+
+3. JPA
++ Không quan tâm truy vấn SQL
++ Map Entities (Schema) vào bảng dữ liệu (table)
+```JAVA
+// Đây là file CourseJpaRepository.java
+// Nếu tương tác trực tiếp với database thì phải sử dụng @Repository và @Transactional
+@Repository
+@Transactional
+public class CourseJpaRepository {
+	
+  //PersistenceContext tương tự như Autowired nhưng được tối ưu cho Entity
+	@PersistenceContext
+	private EntityManager entityManager;
+	
+	public void insert(Course course) {
+		entityManager.merge(course);
+	}
+	
+	public void deleteById(long id) {
+		Course course = entityManager.find(Course.class, id);
+		entityManager.remove(course);
+	}
+	
+	public Course findById(long id) {
+		return entityManager.find(Course.class, id);
+	}
+}
+```
+
+```JAVA
+// Đây là file Course.java
+// Cần thêm @Entity để chỉ định bảng, nếu tên bảng khác với tên class thì thêm ngoặc này vào kế bên (name="Tên_Bảng")
+// Tương tự cho cột
+// @Id để chỉ định khóa chính
+@Entity
+public class Course {
+	
+	@Id
+	private long id;
+	
+  @Column(name="name")
+	private String name;
+	
+	private String author;
+
+	public Course() {
+
+	}
+
+	public Course(long id, String name, String author) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.author = author;
+	}
+
+	public long getId() {
+		return id;
+	}
+
+	public void setId(long id) {
+		this.id = id;
+	}
+
+	public String getName() {
+		return name;
+	}
+
+	public void setName(String name) {
+		this.name = name;
+	}
+
+	public String getAuthor() {
+		return author;
+	}
+
+	public void setAuthor(String author) {
+		this.author = author;
+	}
+
+	@Override
+	public String toString() {
+		return "Course [id=" + id + ", name=" + name + ", author=" + author + "]";
+	}
+}
+```
+4. Spring Data JPA
++ Tương tự như JPA nhưng không code luôn, chỉ cần extends vào là được
+```JAVA
+public interface CourseSpringDataJpaRepository extends JpaRepository<Course, Long>{
+  // Hàm findBy[column] này được hỗ trợ bởi thư viện, chỉ cần ghi đúng tên cột và kiểu của cột vào là dùng được
+	List<Course> findByName(String name);
+}
+```
+
+- Ngoài ra để JPA hiển thị log các câu truy vấn thì mở file **"application.properties"** và thêm câu sau
+```Java
+spring.jpa.show-sql=true
+```
