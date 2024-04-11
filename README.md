@@ -411,7 +411,7 @@ public class Course {
 	@Id
 	private long id;
 	
-  @Column(name="name")
+   @Column(name="name")
 	private String name;
 	
 	private String author;
