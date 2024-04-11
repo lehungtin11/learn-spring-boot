@@ -20,9 +20,9 @@
 		<input type="submit" />
 	</form:form>
 </div>
+<%@include file="common/footer.jspf"%>
 <script type="text/javascript">
 	$('#targetDate').datepicker({
 		format : 'yyyy-mm-dd'
 	});
 </script>
-<%@include file="common/footer.jspf"%>
