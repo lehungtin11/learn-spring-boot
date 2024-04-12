@@ -1,7 +1,7 @@
 # learn-spring-boot
 
 ## Monitor (Actuator)
-- Mở file **pom.xml** và thêm đoạn **dependency** sau vào **dependencies**
+- Mở file **"pom.xml"** và thêm đoạn **dependency** sau vào **dependencies**
 
 ```JAVA
 <dependency>
