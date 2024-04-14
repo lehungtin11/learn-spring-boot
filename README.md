@@ -37,7 +37,7 @@ http://localhost:8080/actuator/metrics/http.server.requests
 ```
 
 ## Devtool (Auto reload)
-- Mở file **pom.xml** và thêm đoạn **dependency** sau vào **dependencies**
+- Mở file **"pom.xml"** và thêm đoạn **dependency** sau vào **dependencies**
 
 ```Java
 <dependency>
